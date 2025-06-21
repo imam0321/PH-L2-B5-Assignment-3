@@ -5,7 +5,7 @@ const app: Application = express();
 app.use(express());
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to my server");
+  res.send("Welcome to Library Management App");
 });
 
 export default app;
