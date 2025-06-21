@@ -20,7 +20,7 @@ const createBookSchema = z.object({
   copies: z.number().min(0, "Copies must be a positive number"),
 });
 
-// add book
+// Add book
 booksRouters.post("/", async (req: Request, res: Response) => {
   try {
     const body = await createBookSchema.parseAsync(req.body);
@@ -40,6 +40,7 @@ booksRouters.post("/", async (req: Request, res: Response) => {
   }
 });
 
+// Get all books and filter, sort, sortBy, limit  
 booksRouters.get("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -54,6 +55,8 @@ booksRouters.get("/", async (req: Request, res: Response) => {
     if (filter) {
       query.genre = filter;
     }
+
+    // TODO: sort, sortBy, limit
 
     const books = await Book.find(query);
 
@@ -71,6 +74,7 @@ booksRouters.get("/", async (req: Request, res: Response) => {
   }
 });
 
+// Get book find by id 
 booksRouters.get("/:bookId", async (req: Request, res: Response) => {
   try {
     const id = req.params.bookId;
@@ -79,7 +83,7 @@ booksRouters.get("/:bookId", async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Book retrieved successfully",
-      date: book,
+      data: book,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -90,6 +94,7 @@ booksRouters.get("/:bookId", async (req: Request, res: Response) => {
   }
 });
 
+// Update book 
 booksRouters.put("/:bookId", async (req: Request, res: Response) => {
   try {
     const id = req.params.bookId;
@@ -102,7 +107,26 @@ booksRouters.put("/:bookId", async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       message: "Book updated successfully",
-      date: book,
+      data: book,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error,
+    });
+  }
+});
+
+booksRouters.delete("/:bookId", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.bookId;
+    await Book.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Book deleted successfully",
+      data: null,
     });
   } catch (error: any) {
     res.status(500).json({

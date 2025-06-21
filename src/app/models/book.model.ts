@@ -42,7 +42,7 @@ const bookSchema = new Schema<IBook>(
       type: Boolean,
     },
   },
-  { timestamps: true, versionKey: false }
+  { versionKey: false, timestamps: true }
 );
 
 bookSchema.pre("save", function (next) {
