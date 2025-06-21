@@ -31,7 +31,7 @@ const bookSchema = new Schema<IBook>(
     },
     description: {
       type: String,
-      default: ""
+      default: "",
     },
     copies: {
       type: Number,
