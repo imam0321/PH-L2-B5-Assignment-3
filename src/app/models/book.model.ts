@@ -31,11 +31,12 @@ const bookSchema = new Schema<IBook>(
     },
     description: {
       type: String,
+      default: ""
     },
     copies: {
       type: Number,
       required: [true, "Copies are Required"],
-      min: [0, "Copies must be positive counts"],
+      min: [0, "Copies must be a positive number"],
     },
     available: {
       type: Boolean,
