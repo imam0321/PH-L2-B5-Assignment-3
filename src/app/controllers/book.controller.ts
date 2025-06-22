@@ -20,7 +20,6 @@ const createBookSchema = z.object({
   copies: z.number().min(0, "Copies must be a positive number"),
 });
 
-// Add book
 booksRouters.post("/", async (req: Request, res: Response) => {
   try {
     const body = await createBookSchema.parseAsync(req.body);
@@ -32,22 +31,24 @@ booksRouters.post("/", async (req: Request, res: Response) => {
       data: book,
     });
   } catch (error: any) {
-    res.status(404).json({
+    res.status(400).json({
       success: false,
       message: error.message,
-      error,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
     });
   }
 });
 
-// Get all books and filter, sort, sortBy, limit
 booksRouters.get("/", async (req: Request, res: Response) => {
   try {
     const {
       filter,
       sortBy = "createdAt",
       sort = "desc",
-      limit = "10",
+      limit = 10,
     } = req.query;
 
     const query: any = {};
@@ -56,9 +57,12 @@ booksRouters.get("/", async (req: Request, res: Response) => {
       query.genre = filter;
     }
 
-    // TODO: sort, sortBy, limit
+    const sortOrder = sort === "asc" ? 1 : -1;
+    const limitNum = Math.min(Math.max(Number(limit) || 10, 1));
 
-    const books = await Book.find(query);
+    const books = await Book.find(query)
+      .sort({ [sortBy as string]: sortOrder })
+      .limit(limitNum);
 
     res.status(200).json({
       success: true,
@@ -69,12 +73,14 @@ booksRouters.get("/", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
-      error,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
     });
   }
 });
 
-// Get book find by id
 booksRouters.get("/:bookId", async (req: Request, res: Response) => {
   try {
     const id = req.params.bookId;
@@ -89,7 +95,10 @@ booksRouters.get("/:bookId", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
-      error,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
     });
   }
 });
@@ -118,7 +127,10 @@ booksRouters.put("/:bookId", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
-      error,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
     });
   }
 });
@@ -137,7 +149,10 @@ booksRouters.delete("/:bookId", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message,
-      error,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
     });
   }
 });
