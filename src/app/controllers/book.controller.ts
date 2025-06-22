@@ -40,7 +40,7 @@ booksRouters.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// Get all books and filter, sort, sortBy, limit  
+// Get all books and filter, sort, sortBy, limit
 booksRouters.get("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -74,7 +74,7 @@ booksRouters.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// Get book find by id 
+// Get book find by id
 booksRouters.get("/:bookId", async (req: Request, res: Response) => {
   try {
     const id = req.params.bookId;
@@ -94,20 +94,25 @@ booksRouters.get("/:bookId", async (req: Request, res: Response) => {
   }
 });
 
-// Update book 
+// Update book
 booksRouters.put("/:bookId", async (req: Request, res: Response) => {
   try {
     const id = req.params.bookId;
     const updatedData = req.body;
 
-    const book = await Book.findByIdAndUpdate(id, updatedData, {
+    if (typeof updatedData.copies === "number") {
+      updatedData.available = updatedData.copies > 0;
+    }
+
+    const updatedBook = await Book.findByIdAndUpdate(id, updatedData, {
       new: true,
+      runValidators: true,
     });
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Book updated successfully",
-      data: book,
+      data: updatedBook,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -123,7 +128,7 @@ booksRouters.delete("/:bookId", async (req: Request, res: Response) => {
     const id = req.params.bookId;
     await Book.findByIdAndDelete(id);
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Book deleted successfully",
       data: null,
