@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/book.model";
-import { date, z } from "zod";
+import { z } from "zod";
 
 export const booksRouters = express.Router();
 
