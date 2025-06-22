@@ -1,12 +1,19 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/book.model";
 import { Borrow } from "../models/borrow.model";
+import { z } from "zod";
 
 export const borrowRouters = express.Router();
 
+const borrowZodSchema = z.object({
+  book: z.string().nonempty("Book Id is required."),
+  quantity: z.number().min(1, "Quantity must be at least 1"),
+  dueDate: z.string().nonempty("Due date is required."),
+});
+
 borrowRouters.post("/", async (req: Request, res: Response) => {
   try {
-    const { book: bookId, quantity, dueDate } = req.body;
+    const { book: bookId, quantity, dueDate } = borrowZodSchema.parse(req.body);
 
     if (!bookId || typeof quantity !== "number" || quantity <= 0) {
       res.status(400).json({
