@@ -1,8 +1,56 @@
 import express, { Request, Response } from "express";
+import { Book } from "../models/book.model";
+import { Borrow } from "../models/borrow.model";
 
 export const borrowRouters = express.Router();
 
-borrowRouters.post("/", async (req:Request, res: Response) => {
-  const body = req.body;
-  
-})
+borrowRouters.post("/", async (req: Request, res: Response) => {
+  try {
+    const { book: bookId, quantity, dueDate } = req.body;
+
+    if (!bookId || typeof quantity !== "number" || quantity <= 0) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid book ID or quantity",
+      });
+      return;
+    }
+
+    const findBook = await Book.findById(bookId);
+    if (!findBook) {
+      res.status(404).json({
+        success: false,
+        message: "Book not found",
+      });
+      return;
+    }
+
+    if (findBook.copies < quantity) {
+      res.status(400).json({
+        success: false,
+        message: "Not enough copies available",
+      });
+      return;
+    }
+
+    const borrow = new Borrow({ book: bookId, quantity, dueDate });
+    await borrow.save();
+
+    await Book.updateAvailable(bookId, quantity);
+
+    res.status(201).json({
+      success: true,
+      message: "Book borrowed successfully",
+      data: borrow,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
+    });
+  }
+});
