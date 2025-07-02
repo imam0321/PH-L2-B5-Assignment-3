@@ -16,10 +16,16 @@ exports.borrowRouters = void 0;
 const express_1 = __importDefault(require("express"));
 const book_model_1 = require("../models/book.model");
 const borrow_model_1 = require("../models/borrow.model");
+const zod_1 = require("zod");
 exports.borrowRouters = express_1.default.Router();
+const borrowZodSchema = zod_1.z.object({
+    book: zod_1.z.string().nonempty("Book Id is required."),
+    quantity: zod_1.z.number().min(1, "Quantity must be at least 1"),
+    dueDate: zod_1.z.string().nonempty("Due date is required."),
+});
 exports.borrowRouters.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { book: bookId, quantity, dueDate } = req.body;
+        const { book: bookId, quantity, dueDate } = borrowZodSchema.parse(req.body);
         if (!bookId || typeof quantity !== "number" || quantity <= 0) {
             res.status(400).json({
                 success: false,
