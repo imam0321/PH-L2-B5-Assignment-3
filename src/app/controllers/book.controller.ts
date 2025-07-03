@@ -48,7 +48,8 @@ booksRouters.get("/", async (req: Request, res: Response) => {
       filter,
       sortBy = "createdAt",
       sort = "desc",
-      limit = 10,
+      limit = 6,
+      page = 1,
     } = req.query;
 
     const query: any = {};
@@ -58,16 +59,27 @@ booksRouters.get("/", async (req: Request, res: Response) => {
     }
 
     const sortOrder = sort === "asc" ? 1 : -1;
-    const limitNum = Math.min(Math.max(Number(limit) || 10, 1));
+    const limitNum = Math.min(Math.max(Number(limit) || 6, 1));
+    const pageNum = Math.max(Number(page) || 1, 1);
+    const skipNum = (pageNum - 1) * limitNum;
+
+    const totalBooks = await Book.countDocuments(query);
 
     const books = await Book.find(query)
       .sort({ [sortBy as string]: sortOrder })
+      .skip(skipNum)
       .limit(limitNum);
 
     res.status(200).json({
       success: true,
       message: "Books retrieved successfully",
       data: books,
+      meta: {
+        total: totalBooks,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(totalBooks / limitNum),
+      },
     });
   } catch (error: any) {
     res.status(500).json({

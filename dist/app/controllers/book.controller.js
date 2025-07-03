@@ -55,20 +55,30 @@ exports.booksRouters.post("/", (req, res) => __awaiter(void 0, void 0, void 0, f
 }));
 exports.booksRouters.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { filter, sortBy = "createdAt", sort = "desc", limit = 10, } = req.query;
+        const { filter, sortBy = "createdAt", sort = "desc", limit = 6, page = 1, } = req.query;
         const query = {};
         if (filter) {
             query.genre = filter;
         }
         const sortOrder = sort === "asc" ? 1 : -1;
-        const limitNum = Math.min(Math.max(Number(limit) || 10, 1));
+        const limitNum = Math.min(Math.max(Number(limit) || 6, 1));
+        const pageNum = Math.max(Number(page) || 1, 1);
+        const skipNum = (pageNum - 1) * limitNum;
+        const totalBooks = yield book_model_1.Book.countDocuments(query);
         const books = yield book_model_1.Book.find(query)
             .sort({ [sortBy]: sortOrder })
+            .skip(skipNum)
             .limit(limitNum);
         res.status(200).json({
             success: true,
             message: "Books retrieved successfully",
             data: books,
+            meta: {
+                total: totalBooks,
+                page: pageNum,
+                limit: limitNum,
+                totalPages: Math.ceil(totalBooks / limitNum),
+            },
         });
     }
     catch (error) {
