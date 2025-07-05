@@ -8,7 +8,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://ph-l2-b5-assignment-3.vercel.app"],
+    origin: ["http://localhost:5173", "https://library-management-client-zeta.vercel.app"],
     credentials: true,
   })
 );

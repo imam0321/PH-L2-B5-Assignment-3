@@ -10,7 +10,7 @@ const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: ["http://localhost:5173", "https://ph-l2-b5-assignment-3.vercel.app"],
+    origin: ["http://localhost:5173", "https://library-management-client-zeta.vercel.app"],
     credentials: true,
 }));
 app.use("/api/books", book_controller_1.booksRouters);
